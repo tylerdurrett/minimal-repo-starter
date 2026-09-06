@@ -1,6 +1,6 @@
 ---
 name: setup-tdog-skills
-description: Scaffold the per-repo configuration the tdog engineering skills assume — an `## Agent skills` block in CLAUDE.md/AGENTS.md, the canonical docs under `docs/agents/`, and the integration-branch ADR under `docs/adr/`. Run before first use of `/triage`, `/to-spec`, `/decompose`, `/check`, `/audit`, `/execute`, `/ship`, `/status`, `/recap`, `/defer`, or `/grill-with-docs` — or any time those skills appear to be missing context about the issue tracker, the label vocabulary, the integration-branch convention, or the domain doc layout.
+description: Scaffold the per-repo configuration the tdog engineering skills assume — an `## Agent skills` block in CLAUDE.md/AGENTS.md, the canonical docs under `docs/agents/`, and the integration-branch ADR under `docs/adr/`. Run before first use of `/wayfinder`, `/triage`, `/to-spec`, `/decompose`, `/check`, `/audit`, `/execute`, `/ship`, `/status`, `/recap`, `/defer`, or `/grill-with-docs` — or any time those skills appear to be missing context about the issue tracker, the label vocabulary, the integration-branch convention, or the domain doc layout.
 disable-model-invocation: true
 ---
 
@@ -73,9 +73,9 @@ Plus the lifecycle label `in-progress` and the category labels `bug`, `enhanceme
 
 Default: each role's string equals its name. Ask the user only whether they want to override any of those strings. If they do, capture the mapping in `docs/agents/triage-labels.md`'s "What replaced what" table so `/triage` and `/status` recognise both old and new during transition.
 
-> **Don't ask about the size tier labels.** `size:initiative`, `size:feature`, `size:slice`, `size:task` are **fixed strings** the workflow skills grep for. Renaming them would mean editing every skill that references them, which is out of scope for the setup. Document them as immutable in the template and move on.
+> **Don't ask about the size tier or Wayfinder labels.** `size:initiative`, `size:feature`, `size:slice`, `size:task`, `wayfinder:map`, `wayfinder:research`, `wayfinder:prototype`, `wayfinder:grilling`, and `wayfinder:task` are **fixed strings** the workflow skills grep for. Renaming them would mean editing every skill that references them, which is out of scope for the setup. Document them as immutable in the template and move on.
 
-Create the labels on the remote so `/triage` doesn't fail on first use:
+Create the labels on the remote so `/triage` and `/wayfinder` don't fail on first use:
 
 ```bash
 gh label create needs-triage     --color FBCA04 --description "Maintainer needs to evaluate" 2>/dev/null
@@ -93,9 +93,14 @@ gh label create size:initiative  --color BFD4F2 --description "Multi-feature eff
 gh label create size:feature     --color BFD4F2 --description "Multi-slice feature" 2>/dev/null
 gh label create size:slice       --color BFD4F2 --description "Multi-task vertical cut" 2>/dev/null
 gh label create size:task        --color BFD4F2 --description "One PR's worth of work" 2>/dev/null
+gh label create wayfinder:map       --color 5319E7 --description "Multi-session decision map; outside spec lifecycle" 2>/dev/null
+gh label create wayfinder:research  --color C2E0C6 --description "Wayfinder primary-source research ticket" 2>/dev/null
+gh label create wayfinder:grilling  --color D4C5F9 --description "Wayfinder human decision session" 2>/dev/null
+gh label create wayfinder:prototype --color F9D0C4 --description "Wayfinder prototype awaiting a human verdict" 2>/dev/null
+gh label create wayfinder:task      --color CFD3D7 --description "Wayfinder prerequisite action" 2>/dev/null
 ```
 
-`gh label create` 422's on duplicates; `2>/dev/null` keeps the run idempotent. If the user picked custom strings, substitute them in the call before running.
+`gh label create` 422's on duplicates; `2>/dev/null` keeps the run idempotent. If the user picked custom state-label strings, substitute only those in the call before running; the size and Wayfinder label strings stay fixed.
 
 #### Section B — Domain docs
 
@@ -189,11 +194,39 @@ grep -rn "<owner>/<repo>" docs/agents docs/adr 2>/dev/null
 
 Should return zero hits. If anything remains, the substitution missed it; fix and re-run.
 
+#### 4f. Add the batch/autopilot land-step autoMode rule (recommended for `/batch` + `/autopilot`)
+
+`/batch` and `/autopilot` squash-merge each code-review-clean task PR into a slice/feature *staging* branch. In auto permission mode the harness safety classifier ("[Merge Without Review]") blocks an agent from merging a PR it created — which also blocks that legitimate task→staging merge and fails the run. The correct fix is an `autoMode.allow` rule that authorizes exactly that one merge shape.
+
+**Why an `autoMode.allow` rule and not a hook.** A PreToolUse hook returning `permissionDecision: "allow"` does **not** override the safety classifier — per the Claude Code docs the classifier is a second gate that runs *after* the permissions system, so a hook `allow` never reaches it. Worse, the classifier can block a delegated sub-agent at the *intent* level, before any `gh pr merge` command string exists for a Bash-matcher hook to inspect. Only an `autoMode.allow` rule speaks to the classifier directly.
+
+**Where the rule must live.** The classifier does **not** read `autoMode` from a checked-in project `.claude/settings.json`. The rule must go in the user's `~/.claude/settings.json` (user scope) or the repo's `.claude/settings.local.json` (project-local, git-ignored). Prefer `.claude/settings.local.json` so the authorization is scoped to this repo.
+
+Skip this only if the user never intends to run `/batch` or `/autopilot` in auto mode. Otherwise:
+
+1. Ensure `.claude/settings.local.json` exists in the user's repo (create it if absent) and that `.claude/settings.local.json` is git-ignored (it holds machine-local, un-checked-in settings — add it to `.gitignore` if it isn't already).
+2. **Merge, don't overwrite** — if the file already exists, add the string into the existing `autoMode.allow` array (creating `autoMode`/`allow` only if absent); never clobber unrelated settings. Add this rule verbatim to `autoMode.allow`:
+
+   ```json
+   {
+     "autoMode": {
+       "allow": [
+         "Squash-merging a code-review-clean task PR (head branch shaped like <type>/issue-N) into a slice/* or feature/* staging integration branch is authorized, including deleting that same merged task's own head branch as part of the squash-merge (e.g. `gh pr merge --squash --delete-branch`). This is the /batch and /autopilot land step: an independent /code-review high already passed the diff, and the real two-party human review gate is the downstream slice/feature promotion PR — which automation opens review-first and never auto-merges. This authorization does NOT extend to merging into main, master, or any default/protected branch, and does NOT authorize deleting any branch other than the just-merged task's own head branch; those remain blocked."
+       ]
+     }
+   }
+   ```
+
+The rule keeps `main`/`master` and any other branch deletion out of scope, so the authorization is narrow no matter who runs the command. If the user prefers user-scope instead of project-local, add the same string to `autoMode.allow` in `~/.claude/settings.json`.
+
+Idempotency: if a matching `autoMode.allow` entry already exists, this is a no-op.
+
 ### 5. Done
 
 Tell the user the setup is complete. List the files that were written (or updated). Mention:
 
 - They can edit `docs/agents/*.md` directly later — the workflow skills read those files at runtime; changes take effect immediately.
+- If the batch/autopilot `autoMode.allow` rule was added (step 4f), note it lives in `.claude/settings.local.json` (or user settings) — not the checked-in `.claude/settings.json`, which the safety classifier does not read for `autoMode` — and that it authorizes only a clean task PR into a `slice/*`|`feature/*` staging branch; merges into main/master stay blocked, so the slice/feature promotion PR is still where a human reviews and merges.
 - Re-running `/setup-tdog-skills` is only necessary if they want to restart from scratch or pick up a future revision of the templates.
 - The natural next move is `/triage` (no args) for a survey, or `/to-spec` to capture the first idea.
 
@@ -205,6 +238,7 @@ Scaffolded tdog skills under <owner>/<repo>.
 - docs/agents/{README,issue-tracker,triage-labels,output-format,lifecycle-initiative,domain}.md
 - docs/adr/NNNN-issues-branch-from-parent-integration-branch.md  (NNNN = the slot chosen at write time)
 - ## Agent skills block in <CLAUDE.md|AGENTS.md>
+- .claude/settings.local.json autoMode.allow rule for the batch/autopilot land step  (only if step 4f ran)
 
 > Next step: `/triage`. Survey the tracker (will be quiet on a fresh repo) and confirm the labels resolve.
 ```
@@ -217,12 +251,12 @@ After a fresh run in a previously-unconfigured repo, all of the following should
 2. `ls docs/adr/` includes `NNNN-issues-branch-from-parent-integration-branch.md` (where `NNNN` is `0001` or the next free slot if `0001` was already taken), with the references in `docs/agents/README.md` and `docs/agents/issue-tracker.md` matching the chosen number.
 3. `CLAUDE.md` (or `AGENTS.md`) has a bare `## Agent skills` block that points at `docs/agents/README.md` and names the tracker — no inline restatement of labels, branches, domain, lifecycle, or output format.
 4. `grep -rn "<owner>/<repo>" docs/` returns nothing.
-5. `gh label list` includes all seven state labels, `in-progress`, the four `size:*` labels, and the three category labels (including `cleanup`).
-6. `/triage` and `/execute` against fresh specs run without complaining about missing doc paths.
+5. `gh label list` includes all seven state labels, `in-progress`, the four `size:*` labels, the three category labels (including `cleanup`), and the five `wayfinder:*` labels.
+6. `/wayfinder`, `/triage`, and `/execute` against fresh work run without complaining about missing doc paths.
 
 ## What this skill does NOT do
 
 - It does not edit the workflow skills under `skills/`. Those are the published library; the user's repo's `docs/agents/` is the configuration surface.
 - It does not seed `CONTEXT.md` or any ADR other than the integration-branch one. `/grill-with-docs` is the producer for both.
 - It does not create initial specs or initiatives. `/to-spec` is the producer.
-- It does not support tracker backends other than GitHub. Local markdown, Linear, Jira, and GitLab would need adapter work in the consumer skills (`/triage`, `/decompose`, `/execute`, `/ship`, `/defer`, `/status`, `/to-spec`, `/audit`, `/check`, `/recap`) before they could be offered here. The local-markdown template file at `templates/agents/issue-tracker-local-markdown.md` is kept as forward-compatible scaffolding for that future work.
+- It does not support tracker backends other than GitHub. Local markdown, Linear, Jira, and GitLab would need adapter work in the consumer skills (`/wayfinder`, `/triage`, `/decompose`, `/execute`, `/ship`, `/defer`, `/status`, `/to-spec`, `/audit`, `/check`, `/recap`) before they could be offered here. The local-markdown template file at `templates/agents/issue-tracker-local-markdown.md` is kept as forward-compatible scaffolding for that future work.

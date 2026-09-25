@@ -85,6 +85,12 @@
       "skillPath": "skills/improve-codebase-architecture/SKILL.md",
       "computedHash": "c77b86b4332919499608f9af1880074e1fec65a59b95c70c27a9f39cd137865e"
     },
+    "openrouter": {
+      "source": "tylerdurrett/skills",
+      "sourceType": "github",
+      "skillPath": "skills/openrouter/SKILL.md",
+      "computedHash": "c4c1dc3cb6d4ece40d11e6e8426ce0d9d2ede641727b388356948d42c610cb6f"
+    },
     "prototype": {
       "source": "tylerdurrett/skills",
       "sourceType": "github",

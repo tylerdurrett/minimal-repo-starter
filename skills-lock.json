@@ -19,6 +19,12 @@
       "skillPath": "skills/check/SKILL.md",
       "computedHash": "bb51f7a6824b834560ba374b91f82199eba7e360aaca7953165b80788b538b54"
     },
+    "chrome-devtools": {
+      "source": "tylerdurrett/skills",
+      "sourceType": "github",
+      "skillPath": "skills/chrome-devtools/SKILL.md",
+      "computedHash": "0f79ab73b6ba60f6d6d9d2982fb6a4c52cea9b5aaaa2815057e6379046226b1f"
+    },
     "code-simplifier": {
       "source": "tylerdurrett/skills",
       "sourceType": "github",

@@ -3,8 +3,6 @@ name: ship
 description: Tier-aware ship skill. Reads the input spec's `size:*` label and dispatches. `size:task` squash-merges the PR, closes the task, prunes the local feature branch; falls back to a defensive close when no open PR exists. `size:slice` opens a promotion PR onto the feature integration branch (or `main` for orphans), prompts merge-now-or-review, closes the slice, deletes the local slice branch. `size:feature` opens the final promotion PR onto `main`, closes the feature, deletes the local feature branch, ticks the parent initiative's progress comment if any. `size:initiative` refuses (initiatives close manually). Use when the user says "ship task <N>", "ship slice <S>", "ship feature <F>", "land PR <#>", "close out slice <S>", "promote feature <F>", or "close task <N> defensively".
 ---
 
-*Batch-mode agents: read [TASK.md](TASK.md) instead of this file — it is the /batch-facing task-tier subset (T1–T8). Keep the two in sync when editing either.*
-
 # Ship
 
 A single tier-aware ship skill. The user says "ship the thing"; the skill reads the input's `size:*` label and picks the right mechanics. The moment-of-truth (intermediate vs. user-visible production ship) lives in the outcome line, not in the skill's name.
@@ -53,7 +51,7 @@ If the spec is already `CLOSED` at the promotion tiers, the previous run finishe
 
 ## Task-tier flow
 
-The closing bracket of `/execute` for any task, regardless of parent kind. The flow branches on whether an open PR exists:
+The closing bracket of a task's implementation PR, regardless of parent kind. The flow branches on whether an open PR exists:
 
 - **PR exists**: squash + delete-branch + fast-forward base + close task. Steps T1 through T8.
 - **No PR exists**: defensive close on the tracker, no git operations. Step T1d.
@@ -168,7 +166,7 @@ Defense-in-depth: T3 already guaranteed a clean entry, and `checkout` / `pull --
 
 Three-block template per [output-format.md](../../../docs/agents/output-format.md). Outcome line names the task in plain English. Next-step rules:
 
-- If the parent slice/feature has more open task children -> `> Next step: \`/execute #<next>\`. <reason>.`
+- If the parent slice/feature has more open task children -> `> Next step: \`/easy-auto #<next>\`. <reason>.`
 - If the closing task was the parent's last open child -> `> Next step: \`/ship #<parent>\`. <reason>.`
 - If the task was orphan -> `Stop.`
 
@@ -219,7 +217,7 @@ Closed task #<N> defensively: <task title in plain English>.
 
 Next-step rules mirror T8:
 
-- If the parent slice/feature has other open task children -> `> Next step: \`/execute #<next>\`. <reason>.`
+- If the parent slice/feature has other open task children -> `> Next step: \`/easy-auto #<next>\`. <reason>.`
 - If this task was the parent's last open child -> `> Next step: \`/ship #<parent>\`. <reason>.`
 - If the task was orphan -> `Stop.`
 
@@ -240,7 +238,7 @@ The flow is stateful but presents as a single invocation: it detects whether a p
 
 ### P1. Verify all native sub-issues are closed
 
-Partition open children into **blocking** (real scope that must land before promotion) and **deferred** (`cleanup`- or `deferred`-labeled housekeeping — typically findings parked by `/defer` or auto-filed by a `/batch` Settle pass, explicitly future work):
+Partition open children into **blocking** (real scope that must land before promotion) and **deferred** (`cleanup`- or `deferred`-labeled housekeeping — typically out-of-scope findings parked during other work, explicitly future work):
 
 ```bash
 owner_repo=$(gh repo view --json nameWithOwner -q .nameWithOwner)
@@ -486,7 +484,7 @@ If `open_deferred` (from P1) is non-empty, add a **Deferred work carried forward
 
 ```
 > Deferred work carried forward (not blocking, but now in `<promotion-target>` un-addressed): #<N> <title> · ...
->   Run `/triage` on each to size and ready it, then `/execute` (or `/batch`) before they rot.
+>   Run `/triage` on each to size and ready it, then `/easy-auto` before they rot.
 ```
 
 Next step:
@@ -518,9 +516,9 @@ See [the dag skill's recolor section](../dag/SKILL.md#refreshing-colors-only-the
 
 - It does not close initiatives. Initiatives close manually; see [docs/agents/lifecycle-initiative.md](../../../docs/agents/lifecycle-initiative.md).
 - It does not delete the remote integration branch at the slice/feature tier. That is a deliberate later action, possibly a future cleanup-sweep skill.
-- It does not merge child PRs onto the integration branch. That happens incrementally via `/execute` + `/ship` at the task tier.
+- It does not merge child PRs onto the integration branch. That happens incrementally via `/ship` at the task tier.
 - It does not roll back a merged promotion. If something goes wrong post-merge, the rollback path is `git revert` on `<promotion-target>` plus the still-present remote integration branch.
-- It does not start the next task. That's `/execute`.
+- It does not start the next task. That's `/easy-auto`.
 - It does not override merge style. Task tier is squash; slice/feature tier is merge commit. The shapes carry different audit-trail intent.
 - It does not auto-restore a dirty working tree. Strict-stop, ask, defer to the user.
 
@@ -530,10 +528,10 @@ Manual end-to-end checklist: what to run, what to inspect, what "correct" looks 
 
 ### Task tier: happy path
 
-1. Open a PR for a `size:task` issue via `/execute <N>`, get it to clean CI + clean review.
+1. Open a PR for a `size:task` issue (e.g. via `/easy-auto <N>`), get it to clean CI + clean review.
 2. Run `/ship <N>` (or `/ship <PR#>`). Steps T1–T7 should complete: PR squash-merged with `--delete-branch`, base branch fast-forwarded, task issue closed with the "Shipped via #<PR#>" comment, local feature branch force-deleted.
 3. **Inspect the tracker:** the task issue is `CLOSED`. The `ready-for-agent` and `in-progress` labels are stripped. The parent slice/feature panel reflects the closed sub-issue (via GitHub native rollup).
-4. **Inspect the next-step block:** if siblings remain, recommends `/execute #<next>`; if the task was the last open child, recommends `/ship #<parent>`.
+4. **Inspect the next-step block:** if siblings remain, recommends `/easy-auto #<next>`; if the task was the last open child, recommends `/ship #<parent>`.
 
 ### Task tier: defensive close (no open PR)
 

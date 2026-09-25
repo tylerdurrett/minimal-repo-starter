@@ -5,13 +5,7 @@
       "source": "tylerdurrett/skills",
       "sourceType": "github",
       "skillPath": "skills/audit/SKILL.md",
-      "computedHash": "36f8f6e3cf33822858eff38137df17cb4336e2ee5cc5e67011cc6625cf54ac8c"
-    },
-    "autopilot": {
-      "source": "tylerdurrett/skills",
-      "sourceType": "github",
-      "skillPath": "skills/autopilot/SKILL.md",
-      "computedHash": "be55bffc72be4575e4980fc4a223f62ba5e46826d3d694661f8dc5fd67e559ef"
+      "computedHash": "f99a00ea5cfe22ac81cce40d8b23a08972dc74d75b3ee35feb096e5f23e18433"
     },
     "backport-skill": {
       "source": "tylerdurrett/skills",
@@ -19,23 +13,11 @@
       "skillPath": "skills/backport-skill/SKILL.md",
       "computedHash": "691a367dd8e5d5093d8cd6de4514abe41c772e3c4d7301a11e202e40e172e7d3"
     },
-    "batch": {
-      "source": "tylerdurrett/skills",
-      "sourceType": "github",
-      "skillPath": "skills/batch/SKILL.md",
-      "computedHash": "c49e1f391d2d565faca331213389f4b6cc70ec8ff0c2537a9533984a383199aa"
-    },
     "check": {
       "source": "tylerdurrett/skills",
       "sourceType": "github",
       "skillPath": "skills/check/SKILL.md",
-      "computedHash": "8fad3cece78139b58d8ac6fb277cbd59e29cb276471e4c2aa8852bb869b48f3e"
-    },
-    "chrome-devtools": {
-      "source": "tylerdurrett/skills",
-      "sourceType": "github",
-      "skillPath": "skills/chrome-devtools/SKILL.md",
-      "computedHash": "0f79ab73b6ba60f6d6d9d2982fb6a4c52cea9b5aaaa2815057e6379046226b1f"
+      "computedHash": "bb51f7a6824b834560ba374b91f82199eba7e360aaca7953165b80788b538b54"
     },
     "code-simplifier": {
       "source": "tylerdurrett/skills",
@@ -47,19 +29,13 @@
       "source": "tylerdurrett/skills",
       "sourceType": "github",
       "skillPath": "skills/dag/SKILL.md",
-      "computedHash": "3f500b760050c4654b5b4cba20afcdee65d7d8aec1af72c3f0d6a9f982166cec"
+      "computedHash": "cde79e0ab3cf5047815213eb11b600d27067808ba182bed3b3a22b70f0b310c8"
     },
     "decompose": {
       "source": "tylerdurrett/skills",
       "sourceType": "github",
       "skillPath": "skills/decompose/SKILL.md",
-      "computedHash": "38a05c77894fda611f696416775a3a50030bd36da8b9ee16ec907373244428df"
-    },
-    "defer": {
-      "source": "tylerdurrett/skills",
-      "sourceType": "github",
-      "skillPath": "skills/defer/SKILL.md",
-      "computedHash": "885d1b21903280b509804db92bdb295ab82caad112f68ccd86963b2b7a969043"
+      "computedHash": "444e58cdefb91fafadb65f27d90b4c1e5a2c0ad12caf0217354335f47b5f5788"
     },
     "diagnose": {
       "source": "tylerdurrett/skills",
@@ -73,11 +49,11 @@
       "skillPath": "skills/domain-modeling/SKILL.md",
       "computedHash": "ddbb9db36d0c874dd94c72d4ed5eba6651118387f6812c296219d6aa81afc865"
     },
-    "execute": {
+    "explainer-video": {
       "source": "tylerdurrett/skills",
       "sourceType": "github",
-      "skillPath": "skills/execute/SKILL.md",
-      "computedHash": "dbc76dfc6607a8392fd1d5ab001bb549270c903a942fa349356c44f36885404e"
+      "skillPath": "skills/explainer-video/SKILL.md",
+      "computedHash": "2d989895d5e359a69c825ac9959f1b81771e540243f7bb8fe35139ac913fa069"
     },
     "grill-with-docs": {
       "source": "tylerdurrett/skills",
@@ -109,12 +85,6 @@
       "skillPath": "skills/prototype/SKILL.md",
       "computedHash": "edae44ede74051bdbe25b3ad240f67ff5977933a774a969f32e75245128dcfb6"
     },
-    "recap": {
-      "source": "tylerdurrett/skills",
-      "sourceType": "github",
-      "skillPath": "skills/recap/SKILL.md",
-      "computedHash": "633e6387dc33ffe5cbdccee516e97173a234b5e79d9f5df27d1d1b243121d951"
-    },
     "research": {
       "source": "tylerdurrett/skills",
       "sourceType": "github",
@@ -125,19 +95,13 @@
       "source": "tylerdurrett/skills",
       "sourceType": "github",
       "skillPath": "skills/setup-tdog-skills/SKILL.md",
-      "computedHash": "2358d9fc497ede2784e0bef9a59f8f814debd9131cdae0e5aac870a5a6d1a2ad"
+      "computedHash": "7d1e6b109172613167e9a19dad1b4cd86612bc7e755e796b1443b8cf0aaf87e0"
     },
     "ship": {
       "source": "tylerdurrett/skills",
       "sourceType": "github",
       "skillPath": "skills/ship/SKILL.md",
-      "computedHash": "cbaac24241727ac50ea592c48f2df41c4fcab2143d6ae363d7ef0e80d9d90f43"
-    },
-    "status": {
-      "source": "tylerdurrett/skills",
-      "sourceType": "github",
-      "skillPath": "skills/status/SKILL.md",
-      "computedHash": "503731835f8862bf7566f21749a7af13954d6d041da051d528f39f9f7c7c04ec"
+      "computedHash": "bebf72a796bd5098bacd11d06d11fe20d95fd4f22471660b922e310b320e32cb"
     },
     "tdd": {
       "source": "tylerdurrett/skills",
@@ -155,7 +119,7 @@
       "source": "tylerdurrett/skills",
       "sourceType": "github",
       "skillPath": "skills/triage/SKILL.md",
-      "computedHash": "0d51b660682bb4f166ce4c8130c3dd83eb6bfac40d5b7e60ff686c8b985e02de"
+      "computedHash": "60e64ab198d9750b9109139d08940926c46d6cf7581958c81a73882db9bda8ff"
     },
     "wayfinder": {
       "source": "tylerdurrett/skills",

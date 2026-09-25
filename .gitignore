@@ -46,6 +46,7 @@ env/
 dist/
 build/
 out/
+outputs/
 *.tsbuildinfo
 
 # Environment / secrets

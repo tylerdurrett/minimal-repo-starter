@@ -2,7 +2,7 @@ Any instructions in this file must be VERY concise since this loads in every age
 
 ## Approach
 
-KISS, YAGNI. We avoid overengineering, prefering elegant solutions.
+KISS, YAGNI. We avoid overengineering, preferring elegant solutions.
 
 ## Agent skills
 
